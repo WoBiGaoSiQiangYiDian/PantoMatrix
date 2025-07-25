@@ -1,6 +1,9 @@
 import os
 import argparse
 import torch
+# import ffmpeg
+# import soundfile as sf
+# import io
 import torch.nn.functional as F
 from torchvision.io import write_video
 
@@ -68,6 +71,23 @@ def visualize_one(save_folder, audio_path, nopytorch3d=False):
         fast_render.add_audio_to_video(npz_path.replace(".npz", "_2dbody.mp4"), audio_path, npz_path.replace(".npz", "_2dbody_audio.mp4"))
     fast_render.render_one_sequence_with_face(npz_path, os.path.dirname(npz_path), audio_path, model_folder="./emage_evaltools/smplx_models/")  
 
+# def convert_mp3_to_wav_bytes(mp3_path, target_sr=16000):
+#     """
+#     将 MP3 文件转为 WAV PCM 格式（返回 numpy array 音频和采样率）
+#     """
+#     try:
+#         out, _ = (
+#             ffmpeg
+#             .input(mp3_path)
+#             .output('pipe:', format='wav', acodec='pcm_s16le', ac=1, ar=target_sr)
+#             .run(capture_stdout=True, capture_stderr=True)
+#         )
+#         audio, sr = sf.read(io.BytesIO(out), dtype='float32')
+#         return audio, sr
+#     except ffmpeg.Error as e:
+#         print("转换失败:", e.stderr.decode())
+#         raise
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--audio_folder", type=str, default="./examples/audio")
@@ -92,6 +112,8 @@ def main():
 
     model = EmageAudioModel.from_pretrained("H-Liu1997/emage_audio").to(device)
     model.eval()
+
+    # convert_mp3_to_wav_bytes(args.audio_folder)
 
     audio_files = [os.path.join(args.audio_folder, f) for f in os.listdir(args.audio_folder) if f.endswith(".wav")]
     sr, pose_fps = model.cfg.audio_sr, model.cfg.pose_fps
